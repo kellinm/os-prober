@@ -1,5 +1,5 @@
 newns () {
-  [ "$OS_PROBER_NEWNS" ] || exec /usr/lib/os-prober/newns "$0" "$@"
+  [ "$OS_PROBER_NEWNS" ] || exec /usr/lib/newns "$0" "$@"
 }
 
 cleanup_tmpdir=false

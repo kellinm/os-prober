@@ -74,8 +74,8 @@ parse_yaboot_conf () {
 				kernel="$(dequote "$2")"
 			;;
 			append)
-				shift 1
-				parameters="$(dequote "${line#append=}")"
+				cleanappend=`printf %s "$line" | sed -E 's/append(\s)*=(\s)*//'`
+				parameters="$(dequote "$cleanappend")"
 			;;
 			initrd)
 				initrd="$(dequote "$2")"

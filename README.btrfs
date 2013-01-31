@@ -1,0 +1,15 @@
+BTRFS is a new filesystem which combines the filesystem with logical volume
+management (subvolumes).  For further information, see:
+      https://btrfs.wiki.kernel.org/index.php/Main_Page
+      https://btrfs.wiki.kernel.org/index.php/FAQ
+
+In order to support BTRFS, a number of changes were necessary to os-prober,
+os-probes/common/50mounted-tests, os-probes/mounted/common/90linux-distro,
+linux-boot-prober, and linux-boot-probes/common/50mounted-tests.
+
+The biggest impact will be to grub2 where there is additional information
+output by os-prober and where, if a BTRFS subvolume is being used for root,
+the parameters for linux-boot-prober have changed.
+
+Sun 30 Dec 2012 11:49:52 AM EST Gene Czarcinski <gene@czarc.net>
+

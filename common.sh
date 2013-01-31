@@ -76,7 +76,9 @@ warn() {
 }
 
 debug() {
-  log "debug: $@"
+  if [ -z "$OS_PROBER_DISABLE_DEBUG" ]; then
+    log "debug: $@" 
+  fi
 }
 
 result () {

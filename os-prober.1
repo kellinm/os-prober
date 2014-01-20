@@ -1,0 +1,24 @@
+.TH os-prober 1 "20 Jan 2014" "os-prober"
+.SH "NAME"
+os-prober \(em Discover bootable partitions on the local system.
+.SH "SYNOPSIS"
+.B os-prober
+.SH "DESCRIPTION"
+.PP
+The \fBos-prober\fR utility will scan all disks available on the system for
+other operating systems.  For each discovered OS, it will output a line of
+the form:
+
+<partition>:<descriptive name>:<short name>:<kind of loader>
+
+For example, on system with Windows XP installed on \fI/dev/sda1\fR,
+\fBos-prober\fR will display:
+
+/dev/sda1:Windows NT/2000/XP:WinNT:chain
+
+Note that for Linux systems that are discovered, a call to
+\fBlinux-boot-prober\fI may be required in order to fully discover the
+necessary information to boot the system.
+.SH "SEE ALSO"
+.PP
+\fBlinux-boot-prober\fR(1)

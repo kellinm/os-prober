@@ -27,6 +27,7 @@ bootuuid=
 
 grep "^/dev/" /proc/mounts | parse_proc_mounts >"$OS_PROBER_TMP/mounted-map" || true
 
+( (
 if [ -z "$1" ]; then
 	ERR=y
 elif [ "$1" = btrfs -a -z "$2" ]; then
@@ -155,7 +156,6 @@ if ! mapped="$(mapdevfs "$partition")"; then
 	continue
 fi
 
-( (
 if ! grep -q "^$mapped " "$OS_PROBER_TMP/mounted-map"; then
 	for test in /usr/lib/linux-boot-probes/*; do
 		if [ -x $test ] && [ -f $test ]; then

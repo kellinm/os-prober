@@ -14,9 +14,12 @@ bootsv="$6"
 found_item=0
 
 entry_result () {
-	if [ "x$type" = "xbtrfs" -a "$rootsv" = "$bootsv" ]; then
+	if [ "x$type" = "xbtrfs" -a "$partition" = "$bootpart" ]; then
 		# trim off the leading subvol
 		kernelfile=$(echo "$kernel" | cut -d '/' -f 2- | cut -d '/' -f 2-)
+		if [ "x$rootsv" != "x$bootsv" ]; then
+		   kernelfile="/boot/$kernelfile"
+		fi
 	else
 		kernelfile=$kernel
 	fi

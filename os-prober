@@ -76,7 +76,7 @@ partitions () {
 	fi
 
 	# now lets make sure we got all of the btrfs partitions and disks
-	blkid | grep btrfs | cut -d ':' -f 1
+	blkid | grep 'TYPE="btrfs"' | cut -d ':' -f 1
 }
 
 parse_proc_swaps () {

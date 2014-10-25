@@ -316,7 +316,7 @@ linux_mount_boot () {
 
 umount_exec=$(which umount)
 umount() {
-	if ! $umount_exec $@; then
+	if ! $umount_exec $@ 2> /dev/null; then
 		error "umount error, retrying after 1 sec"
 		sleep 1
 		$umount_exec $@

@@ -85,45 +85,77 @@ if [ "$types" = btrfs ]; then
             rmdir "$tmpmnt" || true
             exit 1
         fi
-	if [ -z "$subvols" ]; then
-		debug "no subvols found on btrfs volume $UUID"
-		exit 1
-	fi
+
 	found=
-        for subvol in $subvols; do
-		debug "begin btrfs processing for $UUID subvol=$subvol"
-		if echo "$rosubvols" | grep -q -x "$subvol"; then
-			continue
+	mounted=
+
+	mpoint="$(grep btrfs /proc/self/mountinfo | grep "$partition " | cut -d ' ' -f 5)"
+	if [ -n "$mpoint" -a "x$mpoint" = "x/" ]; then
+		debug "This is the root for the running system" #running system must be done elsewhere
+	else
+	    #partition was not root of running system, so lets look for bootable subvols
+	    if [ -n "$mpoint" ] ; then
+		mounted=1  #partition was already mounted,so lets not unmount it when done
+	    else
+		# again, do not mount btrfs ro
+		mount -t btrfs -U "$UUID" "$tmpmnt"
+		mpoint="$tmpmnt"
+	    fi
+
+	    test="/usr/libexec/os-probes/mounted/90linux-distro"
+	    if [ -f "$test" ] && [ -x "$test" ]; then
+		debug "running subtest $test"
+		if "$test" "$partition" "$mpoint" btrfs "UUID=$UUID"; then
+		    debug "os found by subtest $test on $partition"
+		    found=1
 		fi
-		if echo "$sssubvols" | grep -q -x "$subvol"; then
-			continue
+	    fi
+	    if [ -z "$mounted" ]; then
+		if ! umount "$tmpmnt"; then
+		    warn "failed to umount $tmpmnt"
 		fi
-		mounted=
-		mpoint="$(grep btrfs /proc/self/mountinfo | grep "$partition " | grep "/$subvol " | cut -d ' ' -f 5)"
-		if [ -n "$mpoint" ]; then
-			if [ "x$mpoint" = "x/" ]; then
-				continue # this is the root for the running system
+	    fi
+	fi
+
+	if [ -z "$subvols" ]; then
+	        debug "no subvols found on btrfs volume $UUID"
+	else
+		found=
+                for subvol in $subvols; do
+			debug "begin btrfs processing for $UUID subvol=$subvol"
+			if echo "$rosubvols" | grep -q -x "$subvol"; then
+				continue
 			fi
-			mounted=1
-		else
-			# again, do not mount btrfs ro
-			mount -t btrfs -o subvol="$subvol" -U "$UUID" "$tmpmnt"
-			mpoint="$tmpmnt"
-		fi
-		test="/usr/lib/os-probes/mounted/90linux-distro"
-		if [ -f "$test" ] && [ -x "$test" ]; then
-			debug "running subtest $test"
-			if "$test" "$partition" "$mpoint" btrfs "UUID=$UUID" "subvol=$subvol"; then
-				debug "os found by subtest $test on subvol $subvol"
-				found=1
+			if echo "$sssubvols" | grep -q -x "$subvol"; then
+				continue
 			fi
-		fi
-		if [ -z "$mounted" ]; then
-			if ! umount "$tmpmnt"; then
-			    warn "failed to umount $tmpmnt"
+			mounted=
+			mpoint="$(grep btrfs /proc/self/mountinfo | grep "$partition " | grep "/$subvol " | cut -d ' ' -f 5)"
+			if [ -n "$mpoint" ]; then
+				if [ "x$mpoint" = "x/" ]; then
+					continue # this is the root for the running system
+				fi
+				mounted=1
+			else
+				# again, do not mount btrfs ro
+				mount -t btrfs -o subvol="$subvol" -U "$UUID" "$tmpmnt"
+				mpoint="$tmpmnt"
 			fi
-		fi
-	done
+			test="/usr/lib/os-probes/mounted/90linux-distro"
+			if [ -f "$test" ] && [ -x "$test" ]; then
+				debug "running subtest $test"
+				if "$test" "$partition" "$mpoint" btrfs "UUID=$UUID" "subvol=$subvol"; then
+					debug "os found by subtest $test on subvol $subvol"
+					found=1
+				fi
+			fi
+			if [ -z "$mounted" ]; then
+				if ! umount "$tmpmnt"; then
+				    warn "failed to umount $tmpmnt"
+				fi
+			fi
+		done
+	fi
 	rmdir "$tmpmnt" || true
 	if [ "$found" ]; then
 		exit 0

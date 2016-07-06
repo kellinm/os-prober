@@ -10,7 +10,7 @@ mpoint="$3"
 type="$4"
 
 # Falling back to /dev/dm-# is unreliable; do not revert them
-if [ "${partition:0:12}" == "/dev/mapper/" ]; then
+if [ "$(echo "${partition}" | cut -c1-12)" = "/dev/mapper/" ]; then
         mappedpartition="${partition}"
 else
         mappedpartition=$(mapdevfs "$partition" 2>/dev/null) || mappedpartition="$partition"

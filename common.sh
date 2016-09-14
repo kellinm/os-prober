@@ -138,7 +138,7 @@ is_dos_extended_partition() {
 		fi
 
 		# dos partition type and no filesystem type?...
-		if echo $output | grep -q ' PTTYPE=dos ' &&
+		if echo $output | grep -q ' PTTYPE=dos\( \|$\)' &&
 				! echo $output | grep -q ' TYPE='; then
 			return 0
 		else
